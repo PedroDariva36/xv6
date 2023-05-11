@@ -71,14 +71,31 @@ myproc(void) {
 // state required to run in the kernel.
 // Otherwise return 0.
 static struct proc*
-allocproc(void)
+allocproc(int class)
 {
-  struct proc *p;
+  struct proc * p;
+  struct proc * start = ptable.proc;
+  struct proc * end = &ptable.proc[NPROC0];
   char *sp;
 
   acquire(&ptable.lock);
+  
+  if (class == 1) {
+    start = &ptable.proc[NPROC0];
+    end = &ptable.proc[NPROC1];
+  }
 
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  if (class == 2) {
+    start = &ptable.proc[NPROC1];
+    end = &ptable.proc[NPROC2];
+  }
+
+  if (class == 3) {
+    start = &ptable.proc[NPROC2];
+    end = &ptable.proc[NPROC];
+  }
+
+  for(p = start; p < end; p++)
     if(p->state == UNUSED)
       goto found;
 
@@ -123,7 +140,7 @@ userinit(void)
   struct proc *p;
   extern char _binary_initcode_start[], _binary_initcode_size[];
 
-  p = allocproc();
+  p = allocproc(0);
   
   initproc = p;
   if((p->pgdir = setupkvm()) == 0)
@@ -178,14 +195,14 @@ growproc(int n)
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
 int
-fork(void)
-{
+fork(int class)
+{ 
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
 
   // Allocate process.
-  if((np = allocproc()) == 0){
+  if((np = allocproc(class)) == 0){
     return -1;
   }
 
@@ -216,6 +233,7 @@ fork(void)
 
   np->state = RUNNABLE;
 
+  np->exClass = class;
   release(&ptable.lock);
 
   return pid;
@@ -319,6 +337,16 @@ wait(void)
 //  - swtch to start running that process
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
+//
+
+static unsigned long int next = 1;
+
+int rand(void) // RAND_MAX assumed to be 32767
+{
+    next = next * 1103515245 + 12345;
+    return (unsigned int)(next/65536) % 32768;
+}
+
 void
 scheduler(void)
 {
@@ -332,7 +360,29 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    struct proc *start = ptable.proc;
+    struct proc *end = &ptable.proc[NPROC0];
+
+    int r = rand() % 12;
+
+    if (r >= 6 && r < 9 ){
+        start = &ptable.proc[NPROC0];
+        end = &ptable.proc[NPROC1];    
+    }
+
+    if (r >= 9 && r < 11){
+        start = &ptable.proc[NPROC1];
+        end = &ptable.proc[NPROC2];    
+    }
+
+    if(r == 11){
+        start = &ptable.proc[NPROC2];
+        end = &ptable.proc[NPROC];
+    }
+
+    //procdump();
+
+    for(p = start; p < end; p++){
       if(p->state != RUNNABLE)
         continue;
 
