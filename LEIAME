@@ -1,0 +1,12 @@
+
+Existem 2 teste:
+
+O primeiro é o teste de classes e pode ser executado ao chamar o comando [classTest]
+na shell do xv6. Esse teste é pra saber se a propriedade de cada classe esta sendo
+mantida. O código fonte esta contido no arquivo "classTest.c".
+
+O segundo teste é o teste de inanição e pode ser executadoao chamar o comando [starvationTest]
+na shell do xv6. Esse teste é pra verificar se as classes estao executado de maneira surtida.
+O código fonte esta contido no arquivo "starvationTest.c".
+
+

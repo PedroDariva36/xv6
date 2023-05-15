@@ -5,7 +5,6 @@
 int main(){
     int n = 36;
     int pids[n];
-    //int wpid;
     
     int i;
     
@@ -32,7 +31,7 @@ int main(){
                 }
             }
             sleep(250);
-            printf(1,"hello, i am son %d class %d \n", i, i%4);    
+            printf(1,"Hello, I am son %d class %d! \n", i, i%4);    
             exit();
         }
     }

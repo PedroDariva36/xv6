@@ -353,42 +353,59 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+    
+    
+    int i[4] = {0,0,0,0};
+    int addr[4][64];
+    
+    for(int a = 0; a < 4; a++){
+        for(int b = 0; b < 64; b++){
+            addr[a][b] = a*64 + b;
+        }
+    }
+
+
+    /*
+    for(int a = 0; a < 4; a++){
+        for(int b = 0; b < 64; b++){
+            cprintf("%d ",addr[a][b]);
+        }
+    }
+    */
+    //cprintf("\n");
+
+
+
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    struct proc *start = ptable.proc;
-    struct proc *end = &ptable.proc[NPROC0];
 
     int r = rand() % 12;
+    int sel = 0;
 
-    if (r >= 6 && r < 9 ){
-        start = &ptable.proc[NPROC0];
-        end = &ptable.proc[NPROC1];    
-    }
+    if (r >= 6 && r < 9 ) sel = 1;
 
-    if (r >= 9 && r < 11){
-        start = &ptable.proc[NPROC1];
-        end = &ptable.proc[NPROC2];    
-    }
+    if (r >= 9 && r < 11) sel = 2;
 
-    if(r == 11){
-        start = &ptable.proc[NPROC2];
-        end = &ptable.proc[NPROC];
-    }
+    if(r == 11) sel = 3;
 
-    //procdump();
-
-    for(p = start; p < end; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    int rodarodajequiti = 0;
+    while (rodarodajequiti < 64) {
+        rodarodajequiti++;
+        i[sel] = (i[sel] + 1) % 64;
+        p = &ptable.proc[addr[sel][i[sel]]]; 
+        if(p->state != RUNNABLE)
+            continue;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
+      
+      
+
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
@@ -399,6 +416,7 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+      break;
     }
     release(&ptable.lock);
 
