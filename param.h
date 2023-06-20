@@ -1,8 +1,6 @@
+#define STRIDEMIN   100  // minimum value for stride
 #define NPROC       256  // maximum number of processes
-#define NPROC0       64
-#define NPROC1      128
-#define NPROC2      192
-#define NPROC3      256
+#define SMAX    1000000  // maximum stride value;
 #define KSTACKSIZE 4096  // size of per-process kernel stack
 #define NCPU          8  // maximum number of CPUs
 #define NOFILE       16  // open files per process

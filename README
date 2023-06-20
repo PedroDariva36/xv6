@@ -52,19 +52,15 @@ simulator and run "make qemu".
 
 ABOUT THIS FORK
 
-This fork implements a round robin with lottery scheduler system, where 
-the ptable length was extended to 256 and it was divided into 4 different 
-ranges and with each range representing a class.  
+This fork implements a stride scheduling system with a sliding window 
+approach, which is both easy to put into code and doesn't 
+seem to cause any problems.
 
-The scheduler was then modified to select randomly what class will be executed 
-at a given time. For this implementation to work there were alterations in the 
-way xv6 calls forks, now needing to pass an integer between 0 and 3 as an 
-argument (obviously representing each class).
 
-The lottery system is biased having:
-	0 >> 6 tickets
-	1 >> 3 tickets
-	2 >> 2 tickets
-	3 >> 1 ticket
+With the sliding window approach, when the max value is reached, the 
+scheduler gets the second lowest value of the pass and, if it is 
+different from 0, subtracts it from all of the other programs, 
+in turn making their differences proportional. If the program 
+that exceeded the max value is  still greater than said max value 
+its pass will be set to 0;
 
-A test program was added to the code, you can run it by typing “classTest” in the shell;
