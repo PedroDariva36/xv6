@@ -1,6 +1,5 @@
 #include "types.h"
 #include "defs.h"
-#include "stat.h"
 #include "param.h"
 
 #include "memlayout.h"
